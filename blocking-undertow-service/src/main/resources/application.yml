@@ -1,0 +1,4 @@
+server:
+  undertow:
+    io-threads: ${server.threads.io:1}
+    worker-threads: ${server.threads.worker:10}

@@ -9,4 +9,13 @@ services:
     build: reactive-netty-service
     ports:
       - 8082:8080
+  blocking-undertow-service:
+    build: blocking-undertow-service
+    environment:
+#      - JMX_HOST_PORT=dockerhost:9000
+      - SERVER_THREADS_IO=2
+      - SERVER_THREADS_WORKER=1000
+    ports:
+      - 8083:8080
+#      - 9000:9000
 
