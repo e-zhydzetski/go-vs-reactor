@@ -1,4 +1,4 @@
-package com.example.nonblockingdemo;
+package com.github.ezhydzetski.govsreactor;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,9 +10,9 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 
 @SpringBootApplication
-public class NettyNonBlockingDemoApplication {
+public class ReactiveNettyApplication {
 	public static void main(String[] args) {
-		SpringApplication.run(NettyNonBlockingDemoApplication.class, args);
+		SpringApplication.run(ReactiveNettyApplication.class, args);
 	}
 
 	@RestController
