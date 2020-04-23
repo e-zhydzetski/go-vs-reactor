@@ -33,7 +33,7 @@ func main() {
 
 	server := &http.Server{
 		Addr:    addr,
-		Handler: NewHandler(),
+		Handler: chi.ServerBaseContext(ctx, NewHandler()),
 	}
 	g.Go(func() error {
 		<-ctx.Done()
@@ -51,6 +51,7 @@ func main() {
 func NewHandler() http.Handler {
 	router := chi.NewRouter()
 	router.Get("/sleep", func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
 		t := time.Second
 
 		ts := r.URL.Query().Get("time")
@@ -65,7 +66,18 @@ func NewHandler() http.Handler {
 			}
 		}
 
-		time.Sleep(t)
+		timer := time.NewTimer(t)
+		select {
+		case <-timer.C:
+		case <-ctx.Done():
+			timer.Stop()
+			log.Println("interrupted by context")
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Header().Set("Content-Type", "text/plain")
+			_, _ = w.Write([]byte(ctx.Err().Error()))
+			return
+		}
+
 		_, _ = w.Write([]byte("Hello after " + t.String()))
 	})
 	return router
