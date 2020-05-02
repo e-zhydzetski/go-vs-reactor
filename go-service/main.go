@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi"
 	"golang.org/x/sync/errgroup"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -33,7 +34,10 @@ func main() {
 
 	server := &http.Server{
 		Addr:    addr,
-		Handler: chi.ServerBaseContext(ctx, NewHandler()),
+		Handler: NewHandler(),
+	}
+	server.BaseContext = func(listener net.Listener) context.Context {
+		return ctx
 	}
 	g.Go(func() error {
 		<-ctx.Done()
@@ -71,13 +75,14 @@ func NewHandler() http.Handler {
 		case <-timer.C:
 		case <-ctx.Done():
 			timer.Stop()
-			log.Println("interrupted by context")
+			log.Println("interrupted by context:", ctx.Err())
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Header().Set("Content-Type", "text/plain")
 			_, _ = w.Write([]byte(ctx.Err().Error()))
 			return
 		}
 
+		log.Println("Hello after", t.String())
 		_, _ = w.Write([]byte("Hello after " + t.String()))
 	})
 	return router
